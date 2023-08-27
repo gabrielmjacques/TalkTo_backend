@@ -8,6 +8,14 @@ const users = {
 
     addUser: ( username ) => {
         usersConnected.push( username )
+    },
+
+    removeUser: ( username ) => {
+        usersConnected = usersConnected.filter( user => user !== username )
+    },
+
+    getConnectedUsersLength: () => {
+        return usersConnected.length
     }
 
 }

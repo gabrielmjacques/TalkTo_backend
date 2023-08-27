@@ -9,22 +9,29 @@ const { users } = require( './usersConnected' );
 app.use( cors )
 app.use( routes )
 
+// Conection
 io.on( 'connection', socket => {
     console.log( `User: ${ socket.id } as connected` )
 
+    // On Disconnect
     socket.on( 'disconnect', reason => {
         console.log( `User ${ socket.id } as diconnected` )
+        users.removeUser( socket.data.username )
     } )
 
-    socket.on( 'checkUsername', ( username, callback ) => {
+    // On Check Username
+    socket.on( 'hasUsername', ( username, callback ) => {
         if ( users.hasUser( username ) ) {
-            callback( false )
+            callback( true )
         } else {
             users.addUser( username )
-            callback( true )
+            callback( false )
         }
+
+        console.log( `Users connected: ${ users.getConnectedUsersLength() }` )
     } )
 
+    // On Set Username
     socket.on( 'setUsername', username => {
         socket.data.username = username
 
