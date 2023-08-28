@@ -6,6 +6,10 @@ const users = {
         return usersConnected.includes( username )
     },
 
+    getUsers: () => {
+        return usersConnected
+    },
+
     addUser: ( username ) => {
         usersConnected.push( username )
     },

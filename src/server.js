@@ -28,16 +28,14 @@ io.on( 'connection', socket => {
             callback( false )
         }
 
-        console.log( `Users connected: ${ users.getConnectedUsersLength() }` )
+        console.log( `Users connected: ${ users.getUsers() }` )
     } )
 
     // On Set Username
     socket.on( 'setUsername', username => {
         socket.data.username = username
 
-        console.log( `User ${ socket.id } as new name: ${ socket.data.username }` )
-
-        socket.emit( 'userSet', username )
+        console.log( `User ${ socket.id } set a new name: ${ socket.data.username }` )
 
     } )
 } )
