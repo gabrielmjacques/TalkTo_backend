@@ -42,7 +42,10 @@ io.on( 'connection', socket => {
     // On Send Message
     socket.on( 'sendMessage', messageObj => {
         console.log( `User ${ socket.id } send a message` )
-        io.emit( 'receiveMessage', messageObj )
+        io.emit( 'receiveMessage', {
+            userId: socket.id,
+            messageObj
+        } )
     } )
 } )
 
