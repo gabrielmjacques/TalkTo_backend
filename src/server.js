@@ -38,6 +38,12 @@ io.on( 'connection', socket => {
         console.log( `User ${ socket.id } set a new name: ${ socket.data.username }` )
 
     } )
+
+    // On Send Message
+    socket.on( 'sendMessage', messageObj => {
+        console.log( `User ${ socket.id } send a message` )
+        io.emit( 'receiveMessage', messageObj )
+    } )
 } )
 
 
