@@ -1,14 +1,14 @@
 import { IMessageModel } from "../Interfaces/IMessageModel";
 
 export default class MessageModel implements IMessageModel {
-    user: { id: number; name: string; };
+    user: { id: string; name: string; };
     username: string;
     message: string;
     date: string;
     time: string;
     milliseconds: number;
 
-    constructor(user: { id: number; name: string; }, message: string, date: string, time: string, milliseconds: number) {
+    constructor(user: { id: string; name: string; }, message: string, date: string, time: string, milliseconds: number) {
         this.user = user;
         this.username = user.name;
         this.message = message;

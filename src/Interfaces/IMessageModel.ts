@@ -1,6 +1,6 @@
 export interface IMessageModel {
     user: {
-        id: number;
+        id: string;
         name: string;
     };
     message: string;
