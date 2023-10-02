@@ -12,6 +12,7 @@ import { getRoom, getRooms } from "./Data/rooms";
 import MessageModel from "./Models/MessageModel";
 import { UserModel } from "./Models/UserModel";
 import { IMessageModel } from "./Interfaces/IMessageModel";
+import { IRoomData } from "./Interfaces/IRoomData";
 
 app.use(cors);
 
@@ -55,13 +56,6 @@ io.on('connection', (socket: Socket) => {
         return callback({ error: null });
     });
 
-    // On Set Username
-    // socket.on('setUsername', (username: string) => {
-    //     socket.data.username = username;
-
-    //     console.log(`User ${socket.id} set a new name: ${socket.data.username}`);
-
-    // });
 
     // On Send Message
     socket.on('sendMessage', (receive_message: IMessageModel) => {
@@ -75,6 +69,22 @@ io.on('connection', (socket: Socket) => {
         );
 
         io.to(socket.data.room).emit('receiveMessage', newMessage);
+    });
+
+    socket.on('getRoomData', (callback: Function) => {
+        const room = getRoom(socket.data.room);
+
+        if (!room) {
+            return callback(null, "Room not found");
+        }
+
+        const roomData: IRoomData = {
+            roomName: room.roomName,
+            roomDescription: room.roomDescription,
+            users: room.users
+        };
+
+        return callback(roomData, null);
     });
 });
 
