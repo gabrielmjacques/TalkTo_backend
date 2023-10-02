@@ -3,14 +3,15 @@ console.clear();
 const app = require('express')();
 const cors = require('cors')();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, { cors: { origin: 'http://localhost:5173' } });
+const io: Socket = require('socket.io')(server, { cors: { origin: 'http://localhost:5173' } });
 
-const { users } = require('./usersConnected');
-
-// Interfaces
 import { Socket } from "socket.io";
-import { IMessageModel } from "./Interfaces/IMessageModel";
+import { getRoom, getRooms } from "./Data/rooms";
+
+// Interfaces/Models
 import MessageModel from "./Models/MessageModel";
+import { UserModel } from "./Models/UserModel";
+import { IMessageModel } from "./Interfaces/IMessageModel";
 
 app.use(cors);
 
@@ -18,31 +19,49 @@ app.use(cors);
 io.on('connection', (socket: Socket) => {
     console.log(`User: ${socket.id} as connected`);
 
+    socket.emit("rooms", getRooms());
+
     // On Disconnect
     socket.on('disconnect', () => {
         console.log(`User ${socket.id} as diconnected`);
-        users.removeUser(socket.data.username);
+
+        const room = getRoom(socket.data.room);
+
+        if (room) {
+            room.removeUser(socket.id);
+            socket.leave(room.roomName);
+        }
     });
 
-    // On Check Username
-    socket.on('hasUsername', (username: string, callback: Function) => {
-        if (users.hasUser(username)) {
-            callback(true);
-        } else {
-            users.addUser(username);
-            callback(false);
+    // On Check Room
+    socket.on('checkRoom', ({ username, room }, callback: Function) => {
+        const serverRoom = getRoom(room);
+
+        if (!serverRoom) {
+            return callback({ error: 'Room not found' });
         }
 
-        console.log(`Users connected: ${users.getUsers()}`);
+        const user = serverRoom.users.find((user: any) => user.username === username);
+
+        if (user) {
+            return callback({ error: 'Username already exists' });
+        }
+
+        socket.data.username = username;
+        socket.data.room = room;
+        serverRoom.addUser(new UserModel(socket.id, username));
+        socket.join(serverRoom.roomName);
+
+        return callback({ error: null });
     });
 
     // On Set Username
-    socket.on('setUsername', (username: string) => {
-        socket.data.username = username;
+    // socket.on('setUsername', (username: string) => {
+    //     socket.data.username = username;
 
-        console.log(`User ${socket.id} set a new name: ${socket.data.username}`);
+    //     console.log(`User ${socket.id} set a new name: ${socket.data.username}`);
 
-    });
+    // });
 
     // On Send Message
     socket.on('sendMessage', (receive_message: IMessageModel) => {
@@ -55,7 +74,7 @@ io.on('connection', (socket: Socket) => {
             receive_message.milliseconds
         );
 
-        io.emit('receiveMessage', newMessage);
+        io.to(socket.data.room).emit('receiveMessage', newMessage);
     });
 });
 
