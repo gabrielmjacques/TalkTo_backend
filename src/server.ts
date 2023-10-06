@@ -20,7 +20,9 @@ app.use(cors);
 io.on('connection', (socket: Socket) => {
     console.log(`User: ${socket.id} as connected`);
 
-    socket.emit("rooms", getRooms());
+    socket.on("rooms", (callback: Function) => {
+        return callback(getRooms());
+    });
 
     // On Disconnect
     socket.on('disconnect', () => {
